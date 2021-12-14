@@ -4,44 +4,51 @@ import dbconfig as conf
 import logging
 import sys
 
-logger = logging.getLogger("baseSpider")
-formatter = logging.Formatter('%(asctime)s\
-              %(levelname)-8s:%(message)s')
-file_handler = logging.FileHandler("user-database.log")
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-logger.setLevel(logging.INFO)
 
-def db_connect():
-    #print(conf.db_config)
-    try:
-        conn = pymysql.connect(host=conf.db_config['host'], port=conf.db_config['port'], user=conf.db_config['user'], password=conf.db_config['password'],
-                                db=conf.db_config['db'], charset = conf.db_config['charset'])
-    except:
-        logger.error("Database connection failed!")
-        return False
-    return conn
+# database controller class
+class DBController:
 
-def db_close(conn):
-    if conn and conn.cursor():
-        conn.cursor().close()
-        conn.close()
-    return True
+    def __init__(self):
+        self.logger = logging.getLogger("baseSpider")
+        self.formatter = logging.Formatter('%(asctime)s\
+                    %(levelname)-8s:%(message)s')
+        self.file_handler = logging.FileHandler("user-database.log")
+        self.file_handler.setFormatter(self.formatter)
+        self.logger.addHandler(self.file_handler)
+        self.logger.setLevel(logging.INFO)
+        self.conn = None
+        self.cursor = None
 
-def db_execute(sql):
-    #print(sql)
-    conn = db_connect()
-    if conn == False:
-        return False
-    with conn.cursor() as cursor:
+    def db_connect(self):
+        #print(conf.db_config)
         try:
-            if conn and cursor:
-                cursor.execute(sql)
-                conn.commit()
+            self.conn = pymysql.connect(host=conf.db_config['host'], port=conf.db_config['port'], user=conf.db_config['user'], password=conf.db_config['password'],
+                                    db=conf.db_config['db'], charset = conf.db_config['charset'])
+        except:
+            logger.error("Database connection failed!")
+            return False
+        self.cursor = self.conn.cursor()
+        return True
+
+    def db_close(self):
+        if self.conn and self.cursor:
+            self.cursor.close()
+            self.conn.close()
+        return True
+
+    def db_execute(self, sql):
+        #print(sql)
+        status = self.db_connect()
+        if status == False:
+            return False
+        try:
+            if self.conn and self.cursor:
+                self.cursor.execute(sql)
+                self.conn.commit()
         except:
             logger.error("sql execution failed: " + sql)
-            db_close(conn)
+            self.db_close()
             return False
-        result = cursor.fetchall()
-    db_close(conn)
-    return result
+        result = self.cursor.fetchall()
+        self.db_close()
+        return result

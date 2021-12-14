@@ -1,16 +1,18 @@
 
 import dbutil as db
 
+dbctrl = db.DBController()
+
 sql = "insert into users(name, password) values('xianzhong', 'asdf')"
-result = db.db_execute(sql)
+result = dbctrl.db_execute(sql)
 
 sql = "select * from users"
-result = db.db_execute(sql)
+result = dbctrl.db_execute(sql)
 print(result)
 
 sql = "delete from users where name = 'xianzhong'"
-result = db.db_execute(sql)
+result = dbctrl.db_execute(sql)
 
 sql = "select * from users"
-result = db.db_execute(sql)
+result = dbctrl.db_execute(sql)
 print(result)
