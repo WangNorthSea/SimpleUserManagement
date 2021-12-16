@@ -25,7 +25,7 @@ class DBController:
             self.conn = pymysql.connect(host=conf.db_config['host'], port=conf.db_config['port'], user=conf.db_config['user'], password=conf.db_config['password'],
                                     db=conf.db_config['db'], charset = conf.db_config['charset'])
         except:
-            logger.error("Database connection failed!")
+            self.logger.error("Database connection failed!")
             return False
         self.cursor = self.conn.cursor()
         return True
@@ -46,7 +46,7 @@ class DBController:
                 self.cursor.execute(sql)
                 self.conn.commit()
         except:
-            logger.error("sql execution failed: " + sql)
+            self.logger.error("sql execution failed: " + sql)
             self.db_close()
             return False
         result = self.cursor.fetchall()
